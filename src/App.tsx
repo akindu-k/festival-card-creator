@@ -93,8 +93,13 @@ function TemplateSwitcher() {
 
 /* ─── Editor layout ───────────────────────────────────────── */
 function EditorView() {
-  const cardRef = useRef<HTMLDivElement>(null)
+  const cardRef    = useRef<HTMLDivElement>(null)  // scaled live preview
+  const captureRef = useRef<HTMLDivElement>(null)  // hidden full-size, used by html2canvas
+  const { cardData } = useAppStore()
   const [mobileTab, setMobileTab] = useState<'content' | 'style' | 'save'>('content')
+
+  const cardW = cardData.orientation === 'landscape' ? 800 : 600
+  const cardH = cardData.orientation === 'landscape' ? 600 : 800
 
   const mobileTabs = [
     { id: 'content' as const, icon: <MessageSquare size={13} />, label: 'Content' },
@@ -103,6 +108,18 @@ function EditorView() {
   ]
 
   return (
+    <>
+      {/* Off-screen full-size render target — no CSS transform, no scaling */}
+      <div
+        aria-hidden="true"
+        className="capture-offscreen"
+        style={{ width: cardW, height: cardH }}
+      >
+        <div ref={captureRef} style={{ width: cardW, height: cardH }}>
+          <CardTemplate data={cardData} />
+        </div>
+      </div>
+
     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
 
       {/* ── Desktop: 3-column layout ── */}
@@ -128,7 +145,7 @@ function EditorView() {
             <TemplateSwitcher />
           </Section>
           <Section icon={<Download size={14}/>} title="Download & Share">
-            <DownloadPanel cardRef={cardRef} />
+            <DownloadPanel cardRef={captureRef} />
           </Section>
         </div>
       </div>
@@ -191,13 +208,14 @@ function EditorView() {
             )}
             {mobileTab === 'save' && (
               <Section icon={<Download size={14}/>} title="Download & Share">
-                <DownloadPanel cardRef={cardRef} />
+                <DownloadPanel cardRef={captureRef} />
               </Section>
             )}
           </motion.div>
         </AnimatePresence>
       </div>
     </div>
+    </>
   )
 }
 
