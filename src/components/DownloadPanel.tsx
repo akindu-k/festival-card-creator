@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Download, FileImage, FileText, Copy, Share2, Loader2 } from 'lucide-react'
+import { Download, FileImage, FileText, Copy, Share2, Loader2, Upload } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import toast from 'react-hot-toast'
+import PublishModal from './community/PublishModal'
+import { useAuthStore } from '../authStore'
+import { useAppStore } from '../store'
 
 interface DownloadPanelProps {
   cardRef: React.RefObject<HTMLDivElement | null>
@@ -18,8 +22,12 @@ const QUALITY_LABELS: Record<Quality, string> = {
 }
 
 export default function DownloadPanel({ cardRef }: DownloadPanelProps) {
-  const [quality, setQuality] = useState<Quality>('high')
-  const [loading, setLoading] = useState<string | null>(null)
+  const navigate  = useNavigate()
+  const user      = useAuthStore((s) => s.user)
+  const { cardData } = useAppStore()
+  const [quality, setQuality]       = useState<Quality>('high')
+  const [loading, setLoading]       = useState<string | null>(null)
+  const [publishOpen, setPublishOpen] = useState(false)
 
   const capture = async (): Promise<HTMLCanvasElement> => {
     const el = cardRef.current
@@ -187,6 +195,27 @@ export default function DownloadPanel({ cardRef }: DownloadPanelProps) {
         <Btn id="share" icon={<Share2 size={15}/>} label="Share Card" sub="Share via apps & messaging" onClick={share} color="green" />
       </div>
 
+      {/* Publish to community */}
+      <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Share with Community</p>
+        <motion.button
+          whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+          type="button"
+          onClick={() => user ? setPublishOpen(true) : navigate('/auth/login')}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed border-gold-300 dark:border-gold-700 text-gold-600 dark:text-gold-400 hover:bg-gold-50 dark:hover:bg-gold-900/20 hover:border-gold-400 transition-all"
+        >
+          <div className="w-8 h-8 rounded-lg bg-gold-100 dark:bg-gold-900/30 flex items-center justify-center shrink-0">
+            <Upload size={14} className="text-gold-500" />
+          </div>
+          <div className="text-left">
+            <div className="text-sm font-semibold leading-tight">Publish as Template</div>
+            <div className="text-[10px] opacity-75 leading-tight mt-0.5">
+              {user ? 'Share your design with the community' : 'Sign in to publish templates'}
+            </div>
+          </div>
+        </motion.button>
+      </div>
+
       {/* Tip */}
       <div className="flex items-start gap-2 p-3 rounded-xl bg-gold-50 dark:bg-gold-900/20 border border-gold-200 dark:border-gold-800">
         <Download size={13} className="text-gold-500 shrink-0 mt-0.5" />
@@ -194,6 +223,8 @@ export default function DownloadPanel({ cardRef }: DownloadPanelProps) {
           Use <strong>Print (3×)</strong> quality for high-resolution prints. Standard is great for WhatsApp &amp; social media.
         </p>
       </div>
+
+      <PublishModal open={publishOpen} onClose={() => setPublishOpen(false)} cardData={cardData} cardRef={cardRef} />
     </div>
   )
 }

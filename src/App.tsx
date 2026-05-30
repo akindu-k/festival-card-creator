@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageSquare, Palette, Download, Layers, ChevronDown, ChevronUp } from 'lucide-react'
+
 import Header from './components/Header'
 import TemplateGallery from './components/TemplateGallery'
 import TextEditor from './components/TextEditor'
@@ -8,19 +10,29 @@ import StylePanel from './components/StylePanel'
 import MessagePicker from './components/MessagePicker'
 import CardPreviewPanel from './components/CardPreviewPanel'
 import DownloadPanel from './components/DownloadPanel'
-import { useAppStore } from './store'
 
-/* ─── Collapsible section ──────────────────────────────────────────── */
-function Section({
-  icon, title, defaultOpen = true, children,
-}: {
+import CommunityFeed    from './pages/CommunityFeed'
+import TemplateDetail   from './pages/TemplateDetail'
+import UserProfile      from './pages/UserProfile'
+import CreatorDashboard from './pages/CreatorDashboard'
+import SavedTemplates   from './pages/SavedTemplates'
+import NotificationsPage from './pages/NotificationsPage'
+import AuthPage         from './pages/AuthPage'
+import ComingSoon       from './pages/ComingSoon'
+
+import { useAppStore } from './store'
+import { TEMPLATES } from './data/templates'
+import CardTemplate from './templates/CardTemplate'
+import type { CardData } from './types'
+
+/* ─── Collapsible section ─────────────────────────────────── */
+function Section({ icon, title, defaultOpen = true, children }: {
   icon: React.ReactNode; title: string; defaultOpen?: boolean; children: React.ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
     <div className="panel overflow-hidden">
-      <button
-        onClick={() => setOpen((o) => !o)}
+      <button type="button" onClick={() => setOpen((o) => !o)}
         className="w-full panel-header hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-left"
       >
         <span className="text-gold-500">{icon}</span>
@@ -30,9 +42,7 @@ function Section({
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             style={{ overflow: 'hidden' }}
           >
@@ -44,15 +54,50 @@ function Section({
   )
 }
 
-/* ─── Editor layout ────────────────────────────────────────────────── */
+/* ─── Quick template switcher (right panel) ───────────────── */
+const DEMO_DATA: CardData = {
+  templateId: '', senderName: '', senderOrg: '', receiverName: '',
+  customGreeting: '', message: 'May the light of Vesak illuminate your path.',
+  fontFamily: 'Playfair Display', fontSize: 13, fontColor: '#FFFFFF',
+  textAlign: 'center', orientation: 'portrait', showDecor: true,
+}
+
+function TemplateSwitcher() {
+  const { cardData, selectTemplate } = useAppStore()
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {TEMPLATES.map((t) => {
+        const demo  = { ...DEMO_DATA, templateId: t.id, fontColor: t.textColor }
+        const scale = 60 / 600
+        return (
+          <button type="button" key={t.id} onClick={() => selectTemplate(t.id)}
+            className={`relative rounded-xl overflow-hidden border-2 transition-all ${
+              cardData.templateId === t.id ? 'border-gold-500 shadow-md shadow-gold-400/30' : 'border-transparent hover:border-gold-300'
+            }`}
+            title={t.name}
+          >
+            <div className="h-20 overflow-hidden" style={{ background: t.bgPreview }}>
+              <div className="thumb-inner-portrait" style={{ transform: `scale(${scale})` }}>
+                <CardTemplate data={demo} isPreview />
+              </div>
+            </div>
+            <div className="absolute bottom-0 inset-x-0 bg-black/50 px-1.5 py-0.5">
+              <p className="text-[9px] text-white text-center truncate">{t.name}</p>
+            </div>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ─── Editor layout ───────────────────────────────────────── */
 function EditorView() {
   const cardRef = useRef<HTMLDivElement>(null)
-
   return (
     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6">
-      <div className="flex flex-col lg:flex-row gap-5" style={{ minHeight: 'calc(100vh - 120px)' }}>
-
-        {/* Left panel: text & messages */}
+      <div className="flex flex-col lg:flex-row gap-5 editor-layout">
+        {/* Left panel */}
         <div className="lg:w-72 xl:w-80 shrink-0 space-y-4 lg:overflow-y-auto lg:max-h-[calc(100vh-120px)] scrollbar-thin">
           <Section icon={<MessageSquare size={14}/>} title="Card Content">
             <TextEditor />
@@ -62,12 +107,12 @@ function EditorView() {
           </Section>
         </div>
 
-        {/* Center: live preview */}
+        {/* Center preview */}
         <div className="flex-1 min-h-[420px] lg:min-h-0">
           <CardPreviewPanel cardRef={cardRef} />
         </div>
 
-        {/* Right panel: style & download */}
+        {/* Right panel */}
         <div className="lg:w-64 xl:w-72 shrink-0 space-y-4 lg:overflow-y-auto lg:max-h-[calc(100vh-120px)] scrollbar-thin">
           <Section icon={<Palette size={14}/>} title="Style">
             <StylePanel />
@@ -84,64 +129,28 @@ function EditorView() {
   )
 }
 
-/* ─── Quick template switcher in the right panel ───────────────────── */
-import { TEMPLATES } from './data/templates'
-import CardTemplate from './templates/CardTemplate'
-import type { CardData } from './types'
-
-const DEMO_DATA: CardData = {
-  templateId:     '',
-  senderName:     '',
-  senderOrg:      '',
-  receiverName:   '',
-  customGreeting: '',
-  message:        'May the light of Vesak illuminate your path.',
-  fontFamily:     'Playfair Display',
-  fontSize:       13,
-  fontColor:      '#FFFFFF',
-  textAlign:      'center',
-  orientation:    'portrait',
-  showDecor:      true,
-}
-
-function TemplateSwitcher() {
-  const { cardData, selectTemplate } = useAppStore()
+/* ─── Home view (gallery OR editor) ──────────────────────── */
+function HomeView() {
+  const { view } = useAppStore()
   return (
-    <div className="grid grid-cols-3 gap-2">
-      {TEMPLATES.map((t) => {
-        const demo = { ...DEMO_DATA, templateId: t.id, fontColor: t.textColor }
-        const scale = 60 / 600
-        return (
-          <button
-            key={t.id}
-            onClick={() => selectTemplate(t.id)}
-            className={`relative rounded-xl overflow-hidden border-2 transition-all ${
-              cardData.templateId === t.id
-                ? 'border-gold-500 shadow-md shadow-gold-400/30'
-                : 'border-transparent hover:border-gold-300'
-            }`}
-            title={t.name}
-          >
-            <div style={{ height: 80, overflow: 'hidden', background: t.bgPreview }}>
-              <div style={{ width: 600, height: 800, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
-                <CardTemplate data={demo} isPreview />
-              </div>
-            </div>
-            <div className="absolute bottom-0 inset-x-0 bg-black/50 px-1.5 py-0.5">
-              <p className="text-[9px] text-white text-center truncate">{t.name}</p>
-            </div>
-          </button>
-        )
-      })}
-    </div>
+    <AnimatePresence mode="wait">
+      {view === 'gallery' ? (
+        <motion.div key="gallery" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
+          <TemplateGallery />
+          <Footer />
+        </motion.div>
+      ) : (
+        <motion.div key="editor" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
+          <EditorView />
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
-/* ─── Root App ──────────────────────────────────────────────────────── */
-export default function App() {
-  const { view, darkMode } = useAppStore()
-
-  // Apply dark mode class
+/* ─── App shell (layout) ──────────────────────────────────── */
+function AppShell() {
+  const { darkMode } = useAppStore()
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
   }, [darkMode])
@@ -149,31 +158,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
       <Header />
-
-      <AnimatePresence mode="wait">
-        {view === 'gallery' ? (
-          <motion.main
-            key="gallery"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3 }}
-          >
-            <TemplateGallery />
-            <Footer />
-          </motion.main>
-        ) : (
-          <motion.main
-            key="editor"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3 }}
-          >
-            <EditorView />
-          </motion.main>
-        )}
-      </AnimatePresence>
+      <main>
+        <Outlet />
+      </main>
     </div>
   )
 }
@@ -190,5 +177,26 @@ function Footer() {
         </p>
       </div>
     </footer>
+  )
+}
+
+/* ─── Root ────────────────────────────────────────────────── */
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppShell />}>
+          <Route index element={<HomeView />} />
+          <Route path="community" element={<ComingSoon />} />
+          <Route path="community/*" element={<ComingSoon />} />
+          <Route path="profile/:username" element={<ComingSoon />} />
+          <Route path="dashboard" element={<ComingSoon />} />
+          <Route path="saved" element={<ComingSoon />} />
+          <Route path="notifications" element={<ComingSoon />} />
+          <Route path="auth/login"  element={<AuthPage mode="login" />} />
+          <Route path="auth/signup" element={<AuthPage mode="signup" />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }

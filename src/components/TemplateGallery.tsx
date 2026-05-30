@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Heart, Flame, Clock, Star } from 'lucide-react'
+import { Search, Heart, Flame, Clock, Star, Users, Sparkles } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { TEMPLATES, CATEGORIES } from '../data/templates'
 import { useAppStore } from '../store'
 import CardTemplate from '../templates/CardTemplate'
@@ -23,7 +24,7 @@ const DEMO_DATA: CardData = {
 
 export default function TemplateGallery() {
   const { selectTemplate, recentIds, favoriteIds, toggleFavorite, isFavorite } = useAppStore()
-  const [query, setQuery]     = useState('')
+  const [query, setQuery]       = useState('')
   const [category, setCategory] = useState('all')
 
   const filtered = useMemo(() => {
@@ -151,6 +152,34 @@ export default function TemplateGallery() {
             </motion.div>
           )}
         </AnimatePresence>
+      </section>
+
+      {/* ── Community coming soon banner ─────────────────── */}
+      <section className="mt-14">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl border border-gold-200 dark:border-gold-800 bg-gradient-to-br from-gold-50 to-vesak-cream dark:from-gray-900 dark:to-gray-800 p-8 text-center"
+        >
+          {/* Decorative blobs */}
+          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-gold-200/30 dark:bg-gold-700/10 blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-vesak-saffron/20 dark:bg-vesak-saffron/10 blur-2xl pointer-events-none" />
+
+          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} className="text-4xl mb-3 select-none">🪷</motion.div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-100 dark:bg-gold-900/30 border border-gold-300 dark:border-gold-700 text-gold-700 dark:text-gold-400 text-[11px] font-semibold mb-3">
+            <Sparkles size={10} /> Coming Soon
+          </div>
+
+          <h3 className="font-display text-xl font-bold text-gray-900 dark:text-white mb-1.5">Community Templates</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-5">
+            Share your Vesak card designs, discover templates created by others, and follow your favourite creators — coming very soon.
+          </p>
+
+          <Link to="/community" className="btn-gold text-sm inline-flex gap-2 items-center px-5 py-2.5">
+            <Users size={13} /> See What's Coming
+          </Link>
+        </motion.div>
       </section>
     </div>
   )

@@ -73,10 +73,12 @@
   }
 
   .scrollbar-thin {
+    /* Chrome 121+, Firefox */
     scrollbar-width: thin;
     scrollbar-color: rgba(212, 175, 55, 0.4) transparent;
   }
 
+  /* Safari / older Chrome / Samsung Internet */
   .scrollbar-thin::-webkit-scrollbar {
     width: 5px;
   }
@@ -101,6 +103,30 @@
 
 .particle {
   animation: particle-drift 4s ease-in-out infinite;
+}
+
+/* Template thumbnail helpers */
+.thumb-inner-portrait {
+  width: 600px;
+  height: 800px;
+  transform-origin: top left;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.thumb-inner-landscape {
+  width: 800px;
+  height: 600px;
+  transform-origin: top left;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Editor min-height */
+.editor-layout {
+  min-height: calc(100vh - 120px);
 }
 
 /* Custom range slider */
