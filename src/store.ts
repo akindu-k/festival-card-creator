@@ -67,11 +67,15 @@ export const useAppStore = create<AppState>()(
           pandal:      '#FFFFFF',
           minimalist:  '#2C1810',
           golden:      '#FFFFFF',
+          custom:      '#FFFFFF',
         }
         const next: CardData = {
           ...current,
           templateId: id,
           fontColor: fontColorMap[id] ?? '#FFFFFF',
+          // keep photo only on custom; clear it when switching to a built-in template
+          backgroundImage:   id === 'custom' ? current.backgroundImage   : undefined,
+          bgOverlayOpacity:  id === 'custom' ? current.bgOverlayOpacity  : undefined,
         }
         const state = get()
         const newHistory = state.history.slice(0, state.historyIdx + 1)

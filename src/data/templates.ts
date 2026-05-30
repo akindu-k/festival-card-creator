@@ -67,6 +67,17 @@ export const TEMPLATES: TemplateInfo[] = [
     textColor:    '#FFFFFF',
     bgPreview:    'linear-gradient(135deg, #8B6914 0%, #D4AF37 50%, #F5D060 100%)',
   },
+  {
+    id:          'custom',
+    name:        'Your Photo',
+    category:    'custom',
+    description: 'Upload your own photo and build a card from scratch',
+    tags:        ['custom', 'photo', 'personal', 'creative'],
+    primaryColor: '#D4AF37',
+    accentColor:  '#FFD700',
+    textColor:    '#FFFFFF',
+    bgPreview:    'linear-gradient(135deg, #111827 0%, #1f2937 100%)',
+  },
 ]
 
 export const CATEGORIES = [

@@ -4,18 +4,20 @@ export type View       = 'gallery' | 'editor'
 
 /* ── Card editor ──────────────────────────────────────────── */
 export interface CardData {
-  templateId:     string
-  senderName:     string
-  senderOrg:      string
-  receiverName:   string
-  customGreeting: string
-  message:        string
-  fontFamily:     string
-  fontSize:       number
-  fontColor:      string
-  textAlign:      TextAlign
-  orientation:    Orientation
-  showDecor:      boolean
+  templateId:      string
+  senderName:      string
+  senderOrg:       string
+  receiverName:    string
+  customGreeting:  string
+  message:         string
+  fontFamily:      string
+  fontSize:        number
+  fontColor:       string
+  textAlign:       TextAlign
+  orientation:     Orientation
+  showDecor:       boolean
+  backgroundImage?: string   // base64 data URL; replaces template gradient when set
+  bgOverlayOpacity?: number  // 0–1, default 0.4
 }
 
 export interface TemplateInfo {
@@ -37,6 +39,7 @@ export type TemplateCategory =
   | 'festive'
   | 'minimalist'
   | 'modern'
+  | 'custom'
 
 export interface MessageCategory {
   id:       string

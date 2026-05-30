@@ -5,6 +5,43 @@ interface TemplateProps {
   isPreview?: boolean
 }
 
+/* ── Background image wrapper ─────────────────────────────── */
+function TemplateWrapper({
+  data,
+  background,
+  overlayColor,
+  children,
+  style,
+}: {
+  data:         CardData
+  background:   string
+  overlayColor: string   // tint applied over photo (keeps template mood)
+  children:     React.ReactNode
+  style?:       React.CSSProperties
+}) {
+  const opacity = data.bgOverlayOpacity ?? 0.4
+  return (
+    <div style={{
+      width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
+      background: data.backgroundImage ? undefined : background,
+      ...style,
+    }}>
+      {data.backgroundImage && (
+        <>
+          <img
+            src={data.backgroundImage}
+            alt=""
+            draggable={false}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{ position: 'absolute', inset: 0, background: overlayColor, opacity }} />
+        </>
+      )}
+      {children}
+    </div>
+  )
+}
+
 /* ─────────────────────────────────────────────────────────── helpers ── */
 
 const CardText = ({
@@ -46,12 +83,10 @@ const CardText = ({
    1.  LANTERN TEMPLATE  — deep night sky with glowing Vesak lanterns
    ══════════════════════════════════════════════════════════════════════ */
 const LanternCard = ({ data }: TemplateProps) => (
-  <div
-    style={{
-      width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
-      background: 'radial-gradient(ellipse at top, #1a0a4e 0%, #0d0a2e 60%, #050215 100%)',
-      display: 'flex', flexDirection: 'column',
-    }}
+  <TemplateWrapper
+    data={data}
+    background="radial-gradient(ellipse at top, #1a0a4e 0%, #0d0a2e 60%, #050215 100%)"
+    overlayColor="rgb(10,5,30)"
   >
     {/* Stars */}
     <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
@@ -171,18 +206,18 @@ const LanternCard = ({ data }: TemplateProps) => (
     }}>
       <CardText data={data} style={{ padding: '20px 10px' }} />
     </div>
-  </div>
+  </TemplateWrapper>
 )
 
 /* ══════════════════════════════════════════════════════════════════════
    2.  LOTUS TEMPLATE  — serene lotus garden with soft pastels
    ══════════════════════════════════════════════════════════════════════ */
 const LotusCard = ({ data }: TemplateProps) => (
-  <div style={{
-    width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(160deg, #FFF0F7 0%, #F9F0FF 45%, #EEF4FF 100%)',
-    display: 'flex', flexDirection: 'column',
-  }}>
+  <TemplateWrapper
+    data={data}
+    background="linear-gradient(160deg, #FFF0F7 0%, #F9F0FF 45%, #EEF4FF 100%)"
+    overlayColor="rgb(140,70,160)"
+  >
     {/* Large background lotus watermark */}
     <svg style={{ position: 'absolute', top: '5%', left: '50%', transform: 'translateX(-50%)', width: '90%', opacity: 0.12 }} viewBox="0 0 200 200">
       {[0,30,60,90,120,150,180,210,240,270,300,330].map((angle, i) => (
@@ -286,17 +321,18 @@ const LotusCard = ({ data }: TemplateProps) => (
     }}>
       <CardText data={data} />
     </div>
-  </div>
+  </TemplateWrapper>
 )
 
 /* ══════════════════════════════════════════════════════════════════════
    3.  TEMPLE TEMPLATE  — saffron sunrise with temple silhouette
    ══════════════════════════════════════════════════════════════════════ */
 const TempleCard = ({ data }: TemplateProps) => (
-  <div style={{
-    width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(180deg, #CC4400 0%, #FF6B00 20%, #FF9933 45%, #FFD700 70%, #FFF8E7 100%)',
-  }}>
+  <TemplateWrapper
+    data={data}
+    background="linear-gradient(180deg, #CC4400 0%, #FF6B00 20%, #FF9933 45%, #FFD700 70%, #FFF8E7 100%)"
+    overlayColor="rgb(120,50,0)"
+  >
     {/* Sun radial rays */}
     <svg style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '80%' }} viewBox="0 0 300 300">
       {[...Array(18)].map((_, i) => {
@@ -387,7 +423,7 @@ const TempleCard = ({ data }: TemplateProps) => (
     }}>
       <CardText data={data} />
     </div>
-  </div>
+  </TemplateWrapper>
 )
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -396,10 +432,11 @@ const TempleCard = ({ data }: TemplateProps) => (
 const PandalCard = ({ data }: TemplateProps) => {
   const bulbColors = ['#FF6B9D','#FFD700','#7B68EE','#00CED1','#FF9933','#98FB98','#FF6347']
   return (
-    <div style={{
-      width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
-      background: 'radial-gradient(ellipse at center, #1a0a4e 0%, #07021a 100%)',
-    }}>
+    <TemplateWrapper
+      data={data}
+      background="radial-gradient(ellipse at center, #1a0a4e 0%, #07021a 100%)"
+      overlayColor="rgb(10,5,30)"
+    >
       {/* Stars */}
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 600 800">
         {[...Array(70)].map((_, i) => (
@@ -502,7 +539,7 @@ const PandalCard = ({ data }: TemplateProps) => {
       }}>
         <CardText data={data} />
       </div>
-    </div>
+    </TemplateWrapper>
   )
 }
 
@@ -510,11 +547,11 @@ const PandalCard = ({ data }: TemplateProps) => {
    5.  MINIMALIST TEMPLATE  — zen clean with lotus line art
    ══════════════════════════════════════════════════════════════════════ */
 const MinimalistCard = ({ data }: TemplateProps) => (
-  <div style={{
-    width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(160deg, #FFFEF9 0%, #FFF8E7 100%)',
-    display: 'flex', flexDirection: 'column',
-  }}>
+  <TemplateWrapper
+    data={data}
+    background="linear-gradient(160deg, #FFFEF9 0%, #FFF8E7 100%)"
+    overlayColor="rgb(240,230,200)"
+  >
     {/* Subtle grid texture */}
     <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.04 }} viewBox="0 0 600 800">
       {[...Array(30)].map((_, i) => <line key={`h${i}`} x1="0" y1={i*28} x2="600" y2={i*28} stroke="#8B6914" strokeWidth="0.5"/>)}
@@ -588,17 +625,18 @@ const MinimalistCard = ({ data }: TemplateProps) => (
       ))}
       <circle cx="50" cy="30" r="4" fill="none" stroke="#D4AF37" strokeWidth="1"/>
     </svg>
-  </div>
+  </TemplateWrapper>
 )
 
 /* ══════════════════════════════════════════════════════════════════════
    6.  GOLDEN TEMPLATE  — sacred gold with mandala border
    ══════════════════════════════════════════════════════════════════════ */
 const GoldenCard = ({ data }: TemplateProps) => (
-  <div style={{
-    width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(145deg, #6B4A0A 0%, #B8962E 25%, #D4AF37 50%, #F5D060 75%, #B8962E 100%)',
-  }}>
+  <TemplateWrapper
+    data={data}
+    background="linear-gradient(145deg, #6B4A0A 0%, #B8962E 25%, #D4AF37 50%, #F5D060 75%, #B8962E 100%)"
+    overlayColor="rgb(100,70,10)"
+  >
     {/* Radial shimmer overlay */}
     <div style={{
       position: 'absolute', inset: 0,
@@ -714,8 +752,105 @@ const GoldenCard = ({ data }: TemplateProps) => (
         </g>
       ))}
     </svg>
-  </div>
+  </TemplateWrapper>
 )
+
+/* ══════════════════════════════════════════════════════════════════════
+   7.  CUSTOM TEMPLATE  — user's own photo as the full background
+   ══════════════════════════════════════════════════════════════════════ */
+const CustomCard = ({ data }: TemplateProps) => {
+  const overlay = data.bgOverlayOpacity ?? 0.35
+
+  if (!data.backgroundImage) {
+    return (
+      <div style={{
+        width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(160deg, #0f172a 0%, #1e293b 100%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {/* Dashed border frame */}
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 600 800">
+          <rect x="20" y="20" width="560" height="760" rx="10" fill="none"
+            stroke="#D4AF37" strokeWidth="2" strokeDasharray="12,8" opacity="0.35"/>
+        </svg>
+        {/* Grid dots */}
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.06 }} viewBox="0 0 600 800">
+          {[...Array(14)].map((_, c) =>
+            [...Array(20)].map((__, r) => (
+              <circle key={`${c}-${r}`} cx={c * 46 + 23} cy={r * 42 + 21} r="1.5" fill="#D4AF37"/>
+            ))
+          )}
+        </svg>
+        {/* Placeholder content */}
+        <div style={{ textAlign: 'center', padding: 48, position: 'relative', zIndex: 10 }}>
+          <div style={{ fontSize: 72, marginBottom: 24, lineHeight: 1, filter: 'grayscale(0.2)' }}>🖼️</div>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 600, color: '#D4AF37', margin: '0 0 10px', letterSpacing: 0.5 }}>Your Photo Canvas</p>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: 'rgba(212,175,55,0.55)', lineHeight: 1.7, margin: '0 0 28px' }}>
+            Upload your own photo from the<br />Style panel to build this card
+          </p>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '10px 20px', borderRadius: 10,
+            background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)',
+            color: '#D4AF37', fontSize: 12, fontFamily: "'Inter', sans-serif", letterSpacing: 0.3,
+          }}>
+            ↑ Style Panel → Upload Photo
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+      {/* Photo */}
+      <img
+        src={data.backgroundImage}
+        alt=""
+        draggable={false}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+
+      {/* Dark overlay for text readability */}
+      {overlay > 0 && (
+        <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${overlay})` }} />
+      )}
+
+      {/* Gold border + corner accents */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 600 800">
+        <rect x="12" y="12" width="576" height="776" rx="6" fill="none" stroke="#D4AF37" strokeWidth="1.5" opacity="0.7"/>
+        <rect x="20" y="20" width="560" height="760" rx="4" fill="none" stroke="#D4AF37" strokeWidth="0.5" opacity="0.35"/>
+        {([[22,22],[578,22],[22,778],[578,778]] as [number,number][]).map(([cx,cy],i) => (
+          <g key={i} transform={`translate(${cx},${cy}) rotate(${i * 90})`}>
+            <path d="M0,0 L22,0 M0,0 L0,22" stroke="#D4AF37" strokeWidth="2" opacity="0.8"/>
+            <circle cx="0" cy="0" r="3" fill="#D4AF37" opacity="0.8"/>
+          </g>
+        ))}
+      </svg>
+
+      {/* Optional Vesak title */}
+      {data.showDecor && (
+        <div style={{ position: 'absolute', top: 32, left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, letterSpacing: 5, color: '#D4AF37', opacity: 0.9, textTransform: 'uppercase', margin: '0 0 4px' }}>✦ Wishing You A ✦</p>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 700, color: '#D4AF37', textShadow: '0 2px 16px rgba(0,0,0,0.6)', margin: 0 }}>Happy Vesak</h1>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, letterSpacing: 4, color: '#FFD700', opacity: 0.85, textTransform: 'uppercase', marginTop: 4 }}>Poya Day</p>
+        </div>
+      )}
+
+      {/* Text content */}
+      <div style={{
+        position: 'absolute',
+        left: 50, right: 50,
+        top: data.showDecor ? '37%' : '22%',
+        bottom: '12%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 10,
+      }}>
+        <CardText data={data} />
+      </div>
+    </div>
+  )
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    MAIN EXPORT
@@ -726,13 +861,14 @@ export default function CardTemplate({ data, isPreview }: TemplateProps) {
 
   const inner = () => {
     switch (data.templateId) {
-      case 'lantern':    return <LanternCard   data={data} isPreview={isPreview} />
-      case 'lotus':      return <LotusCard     data={data} isPreview={isPreview} />
-      case 'temple':     return <TempleCard    data={data} isPreview={isPreview} />
-      case 'pandal':     return <PandalCard    data={data} isPreview={isPreview} />
-      case 'minimalist': return <MinimalistCard data={data} isPreview={isPreview}/>
-      case 'golden':     return <GoldenCard    data={data} isPreview={isPreview} />
-      default:           return <LanternCard   data={data} isPreview={isPreview} />
+      case 'lantern':    return <LanternCard    data={data} isPreview={isPreview} />
+      case 'lotus':      return <LotusCard      data={data} isPreview={isPreview} />
+      case 'temple':     return <TempleCard     data={data} isPreview={isPreview} />
+      case 'pandal':     return <PandalCard     data={data} isPreview={isPreview} />
+      case 'minimalist': return <MinimalistCard  data={data} isPreview={isPreview} />
+      case 'golden':     return <GoldenCard     data={data} isPreview={isPreview} />
+      case 'custom':     return <CustomCard     data={data} isPreview={isPreview} />
+      default:           return <LanternCard    data={data} isPreview={isPreview} />
     }
   }
 

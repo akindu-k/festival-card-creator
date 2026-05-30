@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Heart, Flame, Clock, Star, Users, Sparkles } from 'lucide-react'
+import { Search, Heart, Flame, Clock, Star, Users, Sparkles, ImagePlus } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { TEMPLATES, CATEGORIES } from '../data/templates'
 import { useAppStore } from '../store'
@@ -218,6 +218,7 @@ function TemplateCard({ template: t, compact, onSelect, onFav, favd }: TemplateC
   const thumbW = compact ? 100 : 140
   const thumbH = compact ? 133 : 187
   const scale  = thumbW / 600
+  const isCustom = t.id === 'custom'
 
   return (
     <div
@@ -231,18 +232,31 @@ function TemplateCard({ template: t, compact, onSelect, onFav, favd }: TemplateC
         className="relative overflow-hidden bg-gray-100 dark:bg-gray-800"
         style={{ height: thumbH }}
       >
-        <div
-          style={{
-            width:           600,
-            height:          800,
-            transform:       `scale(${scale})`,
-            transformOrigin: 'top left',
-            pointerEvents:   'none',
-            userSelect:      'none',
-          }}
-        >
-          <CardTemplate data={demoData} isPreview />
-        </div>
+        {isCustom ? (
+          /* Custom template — upload-themed thumbnail */
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-dashed border-gold-500/30">
+            <ImagePlus size={compact ? 16 : 22} className="text-gold-400" />
+            {!compact && (
+              <>
+                <p className="text-[10px] font-semibold text-gold-400 text-center leading-tight px-2">Your Photo</p>
+                <p className="text-[9px] text-gold-400/50 text-center leading-tight px-2">Build from scratch</p>
+              </>
+            )}
+          </div>
+        ) : (
+          <div
+            style={{
+              width:           600,
+              height:          800,
+              transform:       `scale(${scale})`,
+              transformOrigin: 'top left',
+              pointerEvents:   'none',
+              userSelect:      'none',
+            }}
+          >
+            <CardTemplate data={demoData} isPreview />
+          </div>
+        )}
 
         {/* Hover overlay */}
         <AnimatePresence>
@@ -254,30 +268,36 @@ function TemplateCard({ template: t, compact, onSelect, onFav, favd }: TemplateC
               className="absolute inset-0 bg-black/40 flex items-center justify-center"
             >
               <span className="px-3 py-1.5 rounded-lg bg-gold-500 text-white text-xs font-medium shadow-lg">
-                Use Template
+                {isCustom ? 'Start Creating' : 'Use Template'}
               </span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Favorite button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onFav(t.id) }}
-          className={`absolute top-2 right-2 p-1.5 rounded-full transition-all ${
-            favd
-              ? 'bg-red-500 text-white shadow-md'
-              : 'bg-black/30 text-white/70 hover:bg-red-500 hover:text-white'
-          }`}
-        >
-          <Heart size={11} fill={favd ? 'currentColor' : 'none'} />
-        </button>
+        {/* Favorite button — not shown for custom template */}
+        {!isCustom && (
+          <button
+            type="button"
+            title={favd ? 'Remove from favourites' : 'Add to favourites'}
+            onClick={(e) => { e.stopPropagation(); onFav(t.id) }}
+            className={`absolute top-2 right-2 p-1.5 rounded-full transition-all ${
+              favd
+                ? 'bg-red-500 text-white shadow-md'
+                : 'bg-black/30 text-white/70 hover:bg-red-500 hover:text-white'
+            }`}
+          >
+            <Heart size={11} fill={favd ? 'currentColor' : 'none'} />
+          </button>
+        )}
       </div>
 
       {/* Label */}
       {!compact && (
-        <div className="p-2.5 bg-white dark:bg-gray-900">
-          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">{t.name}</p>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 capitalize mt-0.5">{t.category}</p>
+        <div className={`p-2.5 ${isCustom ? 'bg-gray-900' : 'bg-white dark:bg-gray-900'}`}>
+          <p className={`text-xs font-semibold truncate ${isCustom ? 'text-gold-400' : 'text-gray-800 dark:text-gray-200'}`}>{t.name}</p>
+          <p className={`text-[10px] capitalize mt-0.5 ${isCustom ? 'text-gold-400/50' : 'text-gray-400 dark:text-gray-500'}`}>
+            {isCustom ? 'Upload your photo' : t.category}
+          </p>
         </div>
       )}
     </div>
