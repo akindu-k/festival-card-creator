@@ -66,7 +66,7 @@ export default function Header() {
 
         {/* Undo/Redo (editor only) */}
         {inEditor && (
-          <div className="hidden sm:flex items-center gap-1">
+          <div className="flex items-center gap-1">
             <button type="button" onClick={undo} disabled={!canUndo()} title="Undo"
               className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             ><Undo2 size={15} /></button>

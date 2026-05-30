@@ -47,7 +47,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       view:        'gallery',
-      darkMode:    false,
+      darkMode:    true,
       cardData:    DEFAULT_CARD,
       history:     [{ data: DEFAULT_CARD }],
       historyIdx:  0,

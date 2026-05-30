@@ -94,10 +94,19 @@ function TemplateSwitcher() {
 /* ─── Editor layout ───────────────────────────────────────── */
 function EditorView() {
   const cardRef = useRef<HTMLDivElement>(null)
+  const [mobileTab, setMobileTab] = useState<'content' | 'style' | 'save'>('content')
+
+  const mobileTabs = [
+    { id: 'content' as const, icon: <MessageSquare size={13} />, label: 'Content' },
+    { id: 'style'   as const, icon: <Palette size={13} />,       label: 'Style'   },
+    { id: 'save'    as const, icon: <Download size={13} />,      label: 'Save'    },
+  ]
+
   return (
-    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6">
-      <div className="flex flex-col lg:flex-row gap-5 editor-layout">
-        {/* Left panel */}
+    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+
+      {/* ── Desktop: 3-column layout ── */}
+      <div className="hidden lg:flex gap-5 editor-layout">
         <div className="lg:w-72 xl:w-80 shrink-0 space-y-4 lg:overflow-y-auto lg:max-h-[calc(100vh-120px)] scrollbar-thin">
           <Section icon={<MessageSquare size={14}/>} title="Card Content">
             <TextEditor />
@@ -107,12 +116,10 @@ function EditorView() {
           </Section>
         </div>
 
-        {/* Center preview */}
-        <div className="flex-1 min-h-[420px] lg:min-h-0">
+        <div className="flex-1 min-h-0">
           <CardPreviewPanel cardRef={cardRef} />
         </div>
 
-        {/* Right panel */}
         <div className="lg:w-64 xl:w-72 shrink-0 space-y-4 lg:overflow-y-auto lg:max-h-[calc(100vh-120px)] scrollbar-thin">
           <Section icon={<Palette size={14}/>} title="Style">
             <StylePanel />
@@ -124,6 +131,71 @@ function EditorView() {
             <DownloadPanel cardRef={cardRef} />
           </Section>
         </div>
+      </div>
+
+      {/* ── Mobile: card preview + sticky tab bar + panel ── */}
+      <div className="lg:hidden flex flex-col gap-3">
+
+        {/* Card preview */}
+        <div className="h-[360px] sm:h-[420px]">
+          <CardPreviewPanel cardRef={cardRef} />
+        </div>
+
+        {/* Sticky tab bar — sits just below the header */}
+        <div className="sticky top-16 z-10 flex gap-1 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800 shadow-sm">
+          {mobileTabs.map(({ id, icon, label }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setMobileTab(id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                mobileTab === id
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+            >
+              {icon}{label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={mobileTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15 }}
+            className="space-y-3 pb-10"
+          >
+            {mobileTab === 'content' && (
+              <>
+                <Section icon={<MessageSquare size={14}/>} title="Card Content">
+                  <TextEditor />
+                </Section>
+                <Section icon={<MessageSquare size={14}/>} title="Vesak Messages" defaultOpen={false}>
+                  <MessagePicker />
+                </Section>
+              </>
+            )}
+            {mobileTab === 'style' && (
+              <>
+                <Section icon={<Palette size={14}/>} title="Style">
+                  <StylePanel />
+                </Section>
+                <Section icon={<Layers size={14}/>} title="Template" defaultOpen={false}>
+                  <TemplateSwitcher />
+                </Section>
+              </>
+            )}
+            {mobileTab === 'save' && (
+              <Section icon={<Download size={14}/>} title="Download & Share">
+                <DownloadPanel cardRef={cardRef} />
+              </Section>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   )
